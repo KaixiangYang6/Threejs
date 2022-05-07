@@ -18,3 +18,4 @@ const sizes = {
 const camera = new THREE.PerspectiveCamera(75, size.width / size.height);   //(focal length，aspect radio)
 scene.add(camera);
 
+s
