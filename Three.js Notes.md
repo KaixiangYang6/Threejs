@@ -138,3 +138,77 @@ If not, run npm run dev from the terminal, and the page should open.
 in json file, add `"build": "webpack"` in `"scripts": {}`
 
 >Q: What does querySelector('canvas.webgl') function? It will get the canvas element created in html file? 
+
+## 渲染顺序
+
+`.render()`是需要放在所有语句之后。它只渲染在其之前的语句。JS是thread-based顺序执行，不是concurrency model。
+
+## Vector
+
+`mesh.position.normalize()` take the length of the vestor of the object to 1
+`mesh.position.distanceTo(camera.position)` return the distance between mesh and camera
+`mesh.position.set(0.7, -0.6, 1)` set the position of the object
+`mesh.scale.set(2,0.5,0.5)` scale the object
+`mesh.rotation.y = Math.PI` rotate the object. can use Math.PI as an exact value.
+`mesh.roatation.reorder('YXZ')` you can change rotation order by using the reorder() method. Do it before changing the rotation.
+
+`const axesHelper = new THREE.AxesHelper()` The AxesHelper will display 3 lines corresponding to the x, y and z axes, each one starting at the center of the scene and going in the corresponding direction.调用三维坐标系用作视觉参考，别忘了添加到场景里`scene.add(axesHelper)`
+
+
+`camera.lookAt(mesh.position)`  相机指向的坐标点
+`camera.lookAt(new THREE.Vector3(x,y,z))`  相机指向的坐标点
+>Vector3
+Class representing a 3D vector. A 3D vector is an ordered triplet of numbers (labeled x, y, and z), which can be used to represent a number of things, such as:
+    A point in 3D space.
+    A direction and length in 3D space. In three.js the length will always be the Euclidean distance (straight-line distance) from (0, 0, 0) to (x, y, z) and the direction is also measured from (0, 0, 0) towards (x, y, z).
+    Any arbitrary ordered triplet of numbers.
+There are other things a 3D vector can be used to represent, such as momentum vectors and so on, however these are the most common uses in three.js.
+
+Iterating through a Vector3 instance will yield its components (x, y, z) in the corresponding order.
+
+## Group
+
+At some point, you might want to group things. Let's say you are building a house with walls, doors, windows, a roof, bushes, etc.
+
+When you think you're done, you become aware that the house is too small, and you have to re-scale each object and update their positions.
+
+A good alternative would be to group all those objects into a container and scale that container.
+
+You can do that with the Group class.
+
+Instantiate a Group and add it to the scene. Now, when you want to create a new object, you can add it to the Group you just created using the add(...) method rather than adding it directly to the scene
+
+Because the Group class inherits from the Object3D class, it has access to the previously-mentioned properties and methods like position, scale, rotation, quaternion, and lookAt.
+
+Comment the lookAt(...) call and, instead of our previously created cube, create 3 cubes and add them to a Group. Then apply transformations on the group:
+
+```js
+/**
+ * Objects
+ */
+const group = new THREE.Group()
+group.scale.y = 2
+group.rotation.y = 0.2
+scene.add(group)
+
+const cube1 = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+)
+cube1.position.x = - 1.5
+group.add(cube1)
+
+const cube2 = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+)
+cube2.position.x = 0
+group.add(cube2)
+
+const cube3 = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshBasicMaterial({ color: 0xff0000 })
+)
+cube3.position.x = 1.5
+group.add(cube3)
+```
