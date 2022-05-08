@@ -163,8 +163,23 @@ Class representing a 3D vector. A 3D vector is an ordered triplet of numbers (la
     A direction and length in 3D space. In three.js the length will always be the Euclidean distance (straight-line distance) from (0, 0, 0) to (x, y, z) and the direction is also measured from (0, 0, 0) towards (x, y, z).
     Any arbitrary ordered triplet of numbers.
 There are other things a 3D vector can be used to represent, such as momentum vectors and so on, however these are the most common uses in three.js.
-
 Iterating through a Vector3 instance will yield its components (x, y, z) in the corresponding order.
+
+## Combining transformations
+You can combine the position, the rotation (or quaternion), and the scale in any order. The result will be the same. It's equivalent to the state of the object.
+
+Let's combine all the transformations we tried before:
+
+```js
+mesh.position.x = 0.7
+mesh.position.y = - 0.6
+mesh.position.z = 1
+mesh.scale.x = 2
+mesh.scale.y = 0.25
+mesh.scale.z = 0.5
+mesh.rotation.x = Math.PI * 0.25
+mesh.rotation.y = Math.PI * 0.25
+```
 
 ## Group
 
@@ -176,11 +191,11 @@ A good alternative would be to group all those objects into a container and scal
 
 You can do that with the Group class.
 
-Instantiate a Group and add it to the scene. Now, when you want to create a new object, you can add it to the Group you just created using the add(...) method rather than adding it directly to the scene
+Instantiate a Group and add it to the scene. Now, when you want to create a new object, you can add it to the Group you just created using the `add(...)` method rather than adding it directly to the scene
 
-Because the Group class inherits from the Object3D class, it has access to the previously-mentioned properties and methods like position, scale, rotation, quaternion, and lookAt.
+Because the Group class inherits from the Object3D class, it has access to the previously-mentioned properties and methods like `position`, `scale`, `rotation`, `quaternion`, and `lookAt`.
 
-Comment the lookAt(...) call and, instead of our previously created cube, create 3 cubes and add them to a Group. Then apply transformations on the group:
+Comment the `lookAt(...)` call and, instead of our previously created cube, create 3 cubes and add them to a Group. Then apply transformations on the `group`:
 
 ```js
 /**
@@ -212,3 +227,4 @@ const cube3 = new THREE.Mesh(
 cube3.position.x = 1.5
 group.add(cube3)
 ```
+
