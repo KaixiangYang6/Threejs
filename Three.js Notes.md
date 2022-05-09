@@ -228,3 +228,112 @@ cube3.position.x = 1.5
 group.add(cube3)
 ```
 
+## Animation
+
+The `window.requestAnimationFrame()` method tells the browser that you wish to perform an animation and requests that the browser calls a specified function to update an animation before the next repaint. The method takes a callback as an argument to be invoked before the repaint.
+
+**`requestAnimationFrame` will execute the function you provide on the next frame. But then, if this function also uses `requestAnimationFrame` to execute that same function on the next frame, you'll end up with your function being executed on each frame forever which is exactly what we want.**
+Create a function named `tick` and call this function once. In this function, use `window.requestAnimationFrame(...)` to call this same function on the next frame:
+创建tick()，并在其中执行`window.requestAnimationFrame(...)`，括号里执行创建的`tick`，这样可以形成循环。注意外部还需要一个tick()。
+
+```js
+//Animation
+const tick=()=>{
+    console.log('tick')
+    window.requestAnimationFrame(tick) 
+}
+
+tick()
+```
+
+>Q: What does `tick=()=>{}` mean? And what is the purpose of the `tick()` in the last line?
+
+## Time
+
+动画运动应该跟随现实世界的绝对时间，而不是计算机运动的帧速率。如果一帧旋转0.01，不同浏览器的帧速率不一样60帧率或者30帧率，那么旋转的速度将会是不一样的。如果计算两帧之间的时间，每过一份这个时间，旋转0.01，这样每秒旋转的路程是一样的。**虽然60帧的帧率是30帧的两倍，但60帧的`deltaTime`是30帧的二分之一，这样每秒走过的路程是一样的。**
+
+```js
+//Animate
+let time = Date.now()
+
+const tick = () =>
+{
+		// Time
+    const currentTime = Date.now()
+    const deltaTime = currentTime - time
+    time = currentTime
+
+    // Update objects
+    mesh.rotation.y += 0.01 * deltaTime
+
+    // ...
+}
+
+tick()
+```
+
+## Clock
+
+但实际不需要这样计算时间，可以使用Three.js内置的类`Clock`。计算从变量创建起过去了多长时间。
+
+```js
+//Animate
+const clock = new THREE.Clock()
+
+const tick = () =>
+{
+    const elapsedTime = clock.getElapsedTime()
+
+    // Update objects
+    mesh.rotation.y = elapsedTime
+
+    // ...
+}
+
+tick()
+```
+
+## Use GSAP library
+
+<https://greensock.com/docs/v3/GSAP/gsap.to()>
+
+Sometimes you'll want to animate your scene in a very specific way that will require using another library. There are tons of animation libraries, but a very famous one is GSAP.
+
+To add GSAP to our Webpack project, we can use the dependency manager provided with Node.js called `npm`.
+
+In your terminal (while the server is not running or by using another terminal window on the same folder), run `npm install --save gsap@3.5.1`
+
+The `--save` argument saves the dependency in the `package.json` so the module can be fetched if we do an `npm install`.
+
+The `@3.5.1` forces the version. We use this version because it was the one used when writing the lesson, but you can try the latest version if you want by removing @3.5.1.
+
+GSAP is now available in the `node_modules/` folder, and we can import it in our `script.js`:
+
+```js
+import './style.css'
+import * as THREE from 'three'
+import gsap from 'gsap'
+
+// ...
+```
+
+Comment the code related to the previous animations but keep the tick function with the render. Then you can create what we call a tween (an animation from A to B) using gsap.to(...):
+
+```js
+//Animate
+gsap.to(mesh.position, { duration: 1, delay: 1, x: 2 })
+
+const tick = () =>
+{
+    // Render
+    renderer.render(scene, camera)
+
+    // Call tick again on the next frame
+    window.requestAnimationFrame(tick)
+}
+
+tick()
+```
+
+GSAP has a built-in `requestAnimationFrame`, so **you don't need to update the animation by yourself**, but still, if you want to see the cube moving, you need to keep doing the renders of your scene on each frame.
+
