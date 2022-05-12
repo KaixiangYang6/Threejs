@@ -43,10 +43,11 @@ renderer.render(scene, camera);
 
 ## How to run the three.js locally
 
-run `$ npm install` only once
-When we start coding, we should execute `$ npm run dev`. It will automatically open a browser window.
+**run `$ npm install` only once**
+**When we start coding, we should execute `$ npm run dev`. It will automatically open a browser window.**
 Press `Ctrl+C` to stop the server.
 We can build a website with `$ npm run build`. After running this command, there will appear a folder called `dist`. Put this folder online, we will have our website.
+每个文件夹都需要执行一次`$ npm install`，运行过后会有`node_mooudel/`。需要运行时，实行`npm run dev`。
 
 ## More about the Webpack template
 
@@ -93,8 +94,8 @@ Remember that you don't need to add any `<script>`. Webpack will handle this par
 
 Now you need to add your JavaScript code to the `/src/script.js` file. The only differences are the two first lines.
 
-`import './style.css'` will import the CSS and apply it to the page (the CSS file is currently empty).
-`import * as THREE from 'three'` will import all default classes of Three.js inside the `THREE` variable. We can customize the name of variable, like THREE, T etc.
+**`import './style.css'` will import the CSS and apply it to the page (the CSS file is currently empty).**
+**`import * as THREE from 'three'` will import all default classes of Three.js inside the `THREE` variable. We can customize the name of variable, like THREE, T etc.**
 The three module is in the `/node_modules/` folder, but you don't need to touch it.
 
 ```js
@@ -247,6 +248,7 @@ tick()
 ```
 
 >Q: What does `tick=()=>{}` mean? And what is the purpose of the `tick()` in the last line?
+>A: `tick=()=>{}` equals `function
 
 ## Time
 
@@ -337,3 +339,219 @@ tick()
 
 GSAP has a built-in `requestAnimationFrame`, so **you don't need to update the animation by yourself**, but still, if you want to see the cube moving, you need to keep doing the renders of your scene on each frame.
 
+## Camera
+
+Camera
+The Camera class is what we call an abstract class. You're not supposed to use it directly, but you can inherit from it to have access to common properties and methods. Some of the following classes inherit from the Camera class.
+
+ArrayCamera
+The ArrayCamera is used to render your scene multiple times by using multiple cameras. Each camera will render a specific area of the canvas. You can imagine this looking like old school console multiplayer games where we had to share a split-screen.
+
+StereoCamera
+The StereoCamera is used to render the scene through two cameras that mimic the eyes in order to create what we call a parallax effect that will lure your brain into thinking that there is depth. You must have the adequate equipment like a VR headset or red and blue glasses to see the result.
+
+CubeCamera
+The CubeCamera is used to get a render facing each direction (forward, backward, leftward, rightward, upward, and downward) to create a render of the surrounding. You can use it to create an environment map for reflection or a shadow map. We'll talk about those later.
+
+**OrthographicCamera**
+The OrthographicCamera is used to create orthographic renders of your scene without perspective. It's useful if you make an RTS game like Age of Empire. Elements will have the same size on the screen regardless of their distance from the camera.
+
+**PerspectiveCamera**
+The PerspectiveCamera is the one we already used and simulated a real-life camera with perspective.
+As we saw earlier, the PerspectiveCamera class needs some parameters to be instantiated, but we didn't use all the possible parameters. Add the third and fourth parameters:
+
+```js
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 1, 100) //焦距，纵横比例，最近可见距离，最远可见距离
+```
+
+
+
+## Aspect ratio
+The second parameter is called aspect ratio and corresponds to the width divided by the height. While you might think that it's obviously the canvas width by the canvas height and Three.js should calculate it by itself, it's not always the case if you start using Three.js in very specific ways. But in our case, you can simply use the canvas width and the canvas height.
+
+I recommend saving those values in an object because we are going to need them multiple times:
+
+```js
+const sizes = {
+    width: 800,
+    height: 600
+}
+```
+
+## Moouse Corrdinates
+
+What we want to do now is control the camera with our mouse. First of all, we want to know the mouse coordinates. We can do that using native JavaScript by listening to the `mousemove` event with `addEventListener`.
+
+The coordinates will be located in the argument of the callback function as `event.clientX` and `event.clientY`:
+
+```js
+// Cursor
+window.addEventListener('mousemove', (event) =>
+{
+    console.log(event.clientX, event.clientY)
+})
+```
+
+>Q: What is the meaning of `window.addEventListener('mousemove', (event) =>{}` ?
+
+## 调用node_modules的文件
+
+无需从node_modules开始写地址
+
+```js
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js' 
+```
+
+## Camera
+
+```js
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js' //调用库
+const controls = new OrbitControls(camera, canvas)  //创建对象，注意第二个参数需要填写DOMelement.
+```
+
+### OrbitControls 
+
+#### Constructor
+
+OrbitControls( object : Camera, domElement : HTMLDOMElement )
+`object`: (required) The camera to be controlled. The camera must not be a child of another object, unless that object is the scene itself.
+
+`domElement`: The HTML element used for event listeners.
+>Q: How does domElement work there??? What are the differences between `canvas` and `renderer.domElement`?
+
+#### Properties
+
+`.autoRotate` : Boolean
+Set to true to automatically rotate around the target.
+Note that if this is enabled, you must call .update () in your animation loop.
+
+`.autoRotateSpeed` : Float
+How fast to rotate around the target if .autoRotate is true. Default is 2.0, which equates to 30 seconds per orbit at 60fps.
+Note that if .autoRotate is enabled, you must call .update () in your animation loop.
+
+`.dampingFactor` : Float
+The damping inertia used if .enableDamping is set to true.
+Note that for this to work, you must call .update () in your animation loop.  0.05 may be the default value
+
+`.enableDamping` : Boolean
+Set to true to enable damping (inertia), which can be used to give a sense of weight to the controls. Default is false.
+Note that if this is enabled, you must call .update () in your animation loop.
+
+
+## Resize
+
+```js
+const sizes = {
+    width: window.innerWidth,   //根据页面尺寸设置画布大小
+    height: window.innerHeight
+}
+```
+编写CSS，进行页面设置
+A good thing to do first would be to remove any type of `margin` or `padding` on all elements by using a wildcard `*`:
+
+```css
+*
+{/*可以在CSS文件内，将页面边缘margin和内边距padding设置为0 */
+    margin: 0;
+    padding: 0;
+}
+```
+
+Then, we can fix the canvas on the top left using its webgl class to select it:
+
+```css
+.webgl
+{/*让画布居于左上角*/
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+```
+
+You don't need to specify width or height on the canvas because Three.js is already taking care of that when you call the `renderer.setSize(...)` method.
+This is a good opportunity to fix a small problem on our canvas. Maybe you've noticed a blue outline on it when drag and dropping. This mostly happens on latest versions of Chrome. To fix that, we can simply add an `outline: none;` on the `.webgl`:
+
+```css
+.webgl
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+}
+```
+
+If you want to remove any type of scrolling even on touch screens, you can add an `overflow: hidden` on both `html` and `body`:
+
+```css
+html,
+body
+{
+    overflow: hidden;
+}
+```
+
+## Handle resize
+
+To resize the canvas, we first need to know when the window is being resized. To do so, you can listen to the `resize` event on window.
+
+Add the `resize` listener
+
+Now that we trigger a function when the window is being resized, we need to update few things in our code.
+
+First, we must update the `sizes` variable:
+
+Secondly, we must update the `camera` aspect ratio by changing its `aspect` property:
+
+When you change camera properties like `aspect` you also need to update the projection matrix using camera.`updateProjectionMatrix()`. We will talk about matrices later:
+
+Finally, we must update the `renderer`. Updating the renderer will automatically update the canvas width and height:
+
+```js
+window.addEventListener('resize',()=>{
+    //update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    //update camera
+    camera.aspect = sizes.width/sizes.height //reset the property of PerspectiveCamera
+    camera.updateProjectionMatrix()//See the base Camera class for common properties. Note that after making changes to most of these properties you will have to call .updateProjectionMatrix for the changes to take effect.
+    
+    //update renderer
+    renderer.setSize(sizes.width, sizes.height)
+})
+```
+
+You can test the result by double-clicking anywhere to toggle the fullscreen mode. Unfortunately, this won't work on Safari
+
+This browser is taking its time to support officially simple features like the fullscreen, and we need to use prefixed versions to make it work for `document.fullscreenElement`, `canvas.requestFullscreen`, and `document.exitFullscreen`:
+
+```js
+window.addEventListener('dblclick', () =>
+{
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement
+
+    if(!fullscreenElement)
+    {
+        if(canvas.requestFullscreen)
+        {
+            canvas.requestFullscreen()
+        }
+        else if(canvas.webkitRequestFullscreen)
+        {
+            canvas.webkitRequestFullscreen()
+        }
+    }
+    else
+    {
+        if(document.exitFullscreen)
+        {
+            document.exitFullscreen()
+        }
+        else if(document.webkitExitFullscreen)
+        {
+            document.webkitExitFullscreen()
+        }
+    }
+})
+```
