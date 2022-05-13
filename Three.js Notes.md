@@ -248,6 +248,7 @@ tick()
 ```
 
 >Q: What does `tick=()=>{}` mean? And what is the purpose of the `tick()` in the last line?
+
 >A: `tick=()=>{}` equals `function tick() {console.log('tick'); window.requestAnimationFrame(tick)}`. `const` is just create a function. The tick() means run it once, which will produce a self-loop.
 
 ## Time
