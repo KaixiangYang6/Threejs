@@ -248,7 +248,7 @@ tick()
 ```
 
 >Q: What does `tick=()=>{}` mean? And what is the purpose of the `tick()` in the last line?
->A: `tick=()=>{}` equals `function
+>A: `tick=()=>{}` equals `function tick() {console.log('tick'); window.requestAnimationFrame(tick)}`. `const` is just create a function. The tick() means run it once, which will produce a self-loop.
 
 ## Time
 
@@ -392,7 +392,7 @@ window.addEventListener('mousemove', (event) =>
 })
 ```
 
->Q: What is the meaning of `window.addEventListener('mousemove', (event) =>{}` ?
+>Q: What does `event` mean in `window.addEventListener('mousemove', (event) =>{}` ?
 
 ## 调用node_modules的文件
 
